@@ -1,5 +1,5 @@
 # Stealthchanger-Addons
-Automatic Temperature control Configuration for Stealthchanger
+Automatic Temperature control Configuration for Stealthchanger using Orca Slicer 2.2.0
 
 This is my current configuration to prevent heating all tools to first layer temperature when a print is starting, which prevents heating tools unnecessarily.
 
