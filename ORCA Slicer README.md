@@ -3,6 +3,8 @@ Automatic Temperature control Configuration for Stealthchanger using Orca Slicer
 
 This is my current configuration to prevent heating all tools to first layer temperature when a print is starting, which prevents heating tools unnecessarily.
 
+Printer Voron 2.4 350 configured with two tools.
+
 In this example I am using ASA with a first layer temperature of 255C, Normal printing Temp 250C and idle temp 190C.
 Probing/Meshing Nozzle temp is set to 150C
 
