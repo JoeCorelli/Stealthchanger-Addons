@@ -10,6 +10,11 @@ Nozzle temp will be set to 150C throughout the homing and meshing sequence then 
 
 On tool change the next tool is heated to temp and the current tool is set to idle temperature and the Tool is changed.
 
+Under Process - Global on Multimaterial tab Enable Ooze prevention and set Temperature Variation and Preheat Time.
+
+In this example I used -65 at 10s which is just enough time for the Rapido hotend I am using to heat from 190C to 250C. (this will vary based on hotend/filaments used) 
+![image](https://github.com/user-attachments/assets/ade8d327-338a-4497-8a19-8557186d81ee)
+
 FILAMENT SETTINGS.
 
 On Filament TAB, Enter desired Idle Temperature (Must be done for all Filament types used)
