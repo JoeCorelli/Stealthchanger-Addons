@@ -1,7 +1,8 @@
 # Stealthchanger-Addons
 Configuration changes for my setup v2.4 350
 
-FILAMENT SETTINGS
+FILAMENT SETTINGS.
+
 On Filament TAB, Enter desired Idle Temperature
 
 ![image](https://github.com/user-attachments/assets/b5611076-c7e6-4584-8a43-210c9998d1d5)
