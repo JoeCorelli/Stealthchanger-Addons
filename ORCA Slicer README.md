@@ -41,3 +41,83 @@ Machine Start G-code
 PRINT_START {if is_extruder_used[0]}T0_TEMP={idle_temperature[0]}{endif} {if is_extruder_used[1]}T1_TEMP={idle_temperature[1]}{endif} TOOL_TEMP={first_layer_temperature[initial_tool]} TOOL=[initial_tool] BED_TEMP=[first_layer_bed_temperature]
 ```
 ![image](https://github.com/user-attachments/assets/91860d24-2eb0-4584-bf62-5e1ca655a351)
+
+This is my 'print_start' macro
+
+```
+[gcode_macro PRINT_START]
+gcode:
+  # This part fetches data from your slicer. Such as bed temp, extruder temp, chamber temp and size of your printer.
+  {% set target_bed = params.BED_TEMP|int %}
+  {% set TOOL = params.TOOL|int %}
+  #{% set target_extruder = params.TOOL_TEMP|int %} Moved to later in start procedure.
+  #{% set target_chamber = params.CHAMBER|default("40")|int %}
+  {% set x_wait = printer.toolhead.axis_maximum.x|float / 2 %}
+  {% set y_wait = printer.toolhead.axis_maximum.y|float / 2 %}
+  {% set initial_tool = params.TOOL|int %}
+  {% set initial_temperature = 150 %}
+### HEAT FOR HOMING AND PROBING ###
+  SET_DISPLAY_TEXT MSG="Bed: {target_bed}c"           # Displays info
+  STATUS_HEATING                                      # Sets SB-leds to heating-mode
+  M106 S255                                           # Turns on the PT-fan
+  # Preheat all the hotends in use
+  
+  M190 S{target_bed}                                  # Sets the target temp for the bed  
+  INITIALIZE_TOOLCHANGER
+   
+   # Conditional check to call T0 or T1 based on the value of initial_tool 
+    {% if initial_tool == 0 %}
+        T0
+    {% elif initial_tool == 1 %}
+        T1
+    {% else %}
+        M117 Error: Unsupported tool selection
+    {% endif %}
+ 
+  SET_DISPLAY_TEXT MSG="Hotend: 150c"          # Displays info
+  STATUS_HEATING
+  {% for tool_nr in printer.toolchanger.tool_numbers %}    # Heats the tools to 150c - set by initial_temperature parameter above
+    {% if tool_nr == 0 or tool_nr == 1 %}
+        # Set initial temperature for T0 and T1
+        M104 T{tool_nr} S{initial_temperature}
+    {% endif %}
+  {% endfor %}                                       
+  
+  _CQGL                                        # conditional homing and QGL
+   
+  G90                                          # Absolute position
+  BED_MESH_CLEAR                               # Clears old saved bed mesh (if any)
+###  BED MESH ###
+  SET_DISPLAY_TEXT MSG="Bed mesh"                             # Displays info
+  STATUS_MESHING                                              # Sets SB-leds to bed mesh-mode
+  BED_MESH_CALIBRATE                                          # Starts bed mesh
+  {% for tool_nr in printer.toolchanger.tool_numbers %}
+    {% set tooltemp_param = 'T' ~ tool_nr|string ~ '_TEMP' %}
+    {% if tooltemp_param in params %}
+      M104 T{tool_nr} S{params[tooltemp_param]}
+    {% endif %}
+  {% endfor %}
+  Smart_Park                                                  # Parks nozzle closer to print area
+
+### HEAT NOZZLE FOR PRINTING ###  
+  {% set target_extruder = params.TOOL_TEMP|int %}             # Heats up the nozzle up to target via data from slicer
+  SET_DISPLAY_TEXT MSG="Hotend: {target_extruder}c"           # Displays info
+  STATUS_HEATING                                              # Sets SB-leds to heating-mode
+  #G1 X{x_wait} Y{y_wait} Z15 F9000                            # Goes to center of the bed  
+  #MANAGE_TOOL_TEMPERATURES
+  M109 S{ params.TOOL_TEMP }                                    # Heats the nozzle to printing temp
+  
+### CLEAN NOZZLE AND PURGE LINE THEN BEGIN PRINT ###
+  SET_DISPLAY_TEXT MSG="Printing"                  # Displays info
+  STATUS_PRINTING                                  # Sets SB-leds to printing-mode
+  #CLEAN_NOZZLE
+  
+  #G1 X{x_wait - 50} Y10 F10000                      # Moves to starting point 
+  #G1 Z0.6                                          # Raises Z to 0.6
+  G91                                             # Incremental positioning for Satndard purge line
+  #G1 X100 E20 F1500                                # Standard Purge line
+  #VORON_PURGE                                      #KAMP Macro
+  Line_Purge                                      #KAMP Macro
+  M107                                             # Turns off partcooling fan
+  G90                                              # Absolute position
+```
