@@ -14,7 +14,7 @@ Under Process - Global on Multimaterial tab Enable Ooze prevention and set Tempe
 
 In this example I used -65 at 10s which is just enough time for the Rapido hotend I am using to heat from 190C to 250C. (this will vary based on hotend/filaments used) 
 
-<i/>I do not believe the Ooze prevention Temperature variation is used since 'idle_temperature' is called directly. 
+<i/>I do not believe the Ooze prevention Temperature variation is used since 'idle_temperature' is called directly. </i>
 
 ![image](https://github.com/user-attachments/assets/ade8d327-338a-4497-8a19-8557186d81ee)
 
