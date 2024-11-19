@@ -9,7 +9,7 @@ On Filament TAB, Enter desired Idle Temperature (Must be done for all Filament t
 
 Filament end G-code
 
-<T0_TEMP={idle_temperature[0]} ; filament end gcode> 
+[T0_TEMP={idle_temperature[0]} ; filament end gcode] 
 
 Add this to the Filament end G-code for each tool modifying fo the proper Tool/Extruder number.
 
