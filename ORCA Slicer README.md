@@ -50,19 +50,16 @@ gcode:
   # This part fetches data from your slicer. Such as bed temp, extruder temp, chamber temp and size of your printer.
   {% set target_bed = params.BED_TEMP|int %}
   {% set TOOL = params.TOOL|int %}
-  #{% set target_extruder = params.TOOL_TEMP|int %} Moved to later in start procedure.
-  #{% set target_chamber = params.CHAMBER|default("40")|int %}
+  #{% set target_chamber = params.CHAMBER|default("40")|int %} # Uncomment for heatsoak
   {% set x_wait = printer.toolhead.axis_maximum.x|float / 2 %}
   {% set y_wait = printer.toolhead.axis_maximum.y|float / 2 %}
   {% set initial_tool = params.TOOL|int %}
-  {% set initial_temperature = 150 %}                          #Nozzle temp variable for homing and probing
+  {% set initial_temperature = 150 %}                          # Nozzle temp variable for homing and probing
 
 ### HEAT FOR HOMING AND PROBING ###
   SET_DISPLAY_TEXT MSG="Bed: {target_bed}c"                    # Displays info
   STATUS_HEATING                                               # Sets Tn-leds to heating-mode
-  M106 S255                                                    # Turns on the PT-fan
-  # Preheat all the hotends in use
-  
+  M106 S255                                                    # Turns on the PT-fan 
   M190 S{target_bed}                                           # Sets the target temp for the bed  
 
   INITIALIZE_TOOLCHANGER
@@ -80,7 +77,7 @@ gcode:
   
   _CQGL                                                        # conditional homing and QGL
 
-  {% if initial_tool == 0 %}                                   # Conditional check to call T0 or T1 based on the value of initial_tool 
+  {% if initial_tool == 0 %}                                   # Conditional check to call T0 to T5 based on the value of initial_tool 
         T0
     {% elif initial_tool == 1 %}                               
         T1
