@@ -55,38 +55,49 @@ gcode:
   {% set x_wait = printer.toolhead.axis_maximum.x|float / 2 %}
   {% set y_wait = printer.toolhead.axis_maximum.y|float / 2 %}
   {% set initial_tool = params.TOOL|int %}
-  {% set initial_temperature = 150 %}
+  {% set initial_temperature = 150 %}                          #Nozzle temp variable for homing and probing
+
 ### HEAT FOR HOMING AND PROBING ###
-  SET_DISPLAY_TEXT MSG="Bed: {target_bed}c"           # Displays info
-  STATUS_HEATING                                      # Sets SB-leds to heating-mode
-  M106 S255                                           # Turns on the PT-fan
+  SET_DISPLAY_TEXT MSG="Bed: {target_bed}c"                    # Displays info
+  STATUS_HEATING                                               # Sets Tn-leds to heating-mode
+  M106 S255                                                    # Turns on the PT-fan
   # Preheat all the hotends in use
   
-  M190 S{target_bed}                                  # Sets the target temp for the bed  
+  M190 S{target_bed}                                           # Sets the target temp for the bed  
+
   INITIALIZE_TOOLCHANGER
-   
-   # Conditional check to call T0 or T1 based on the value of initial_tool 
-    {% if initial_tool == 0 %}
-        T0
-    {% elif initial_tool == 1 %}
-        T1
-    {% else %}
-        M117 Error: Unsupported tool selection
-    {% endif %}
- 
-  SET_DISPLAY_TEXT MSG="Hotend: 150c"          # Displays info
-  STATUS_HEATING
-  {% for tool_nr in printer.toolchanger.tool_numbers %}    # Heats the tools to 150c - set by initial_temperature parameter above
-    {% if tool_nr == 0 or tool_nr == 1 %}
-        # Set initial temperature for T0 and T1
+
+  SET_DISPLAY_TEXT MSG="Hotend: 150c"                          # Displays info
+  STATUS_HEATING                                               # LED status
+
+ # Heats the tools to 150c - set by initial_temperature parameter above
+  {% for tool_nr in printer.toolchanger.tool_numbers %}       
+    {% if tool_nr == 0 or tool_nr == 1 tool_nr == 2 or tool_nr == 3 tool_nr == 4 or tool_nr == 5 %}              
+        # Set initial temperature for Tools
         M104 T{tool_nr} S{initial_temperature}
     {% endif %}
   {% endfor %}                                       
   
-  _CQGL                                        # conditional homing and QGL
+  _CQGL                                                        # conditional homing and QGL
+
+  {% if initial_tool == 0 %}                                   # Conditional check to call T0 or T1 based on the value of initial_tool 
+        T0
+    {% elif initial_tool == 1 %}                               
+        T1
+    {% elif initial_tool == 2 %}                               
+        T2
+    {% elif initial_tool == 3 %}                               
+        T3
+    {% elif initial_tool == 4 %}                               
+        T4
+    {% elif initial_tool == 5 %}                               
+        T5
+    {% else %}
+        M117 Error: Unsupported tool selection
+    {% endif %}
    
-  G90                                          # Absolute position
-  BED_MESH_CLEAR                               # Clears old saved bed mesh (if any)
+  G90                                                         # Absolute position
+  BED_MESH_CLEAR                                              # Clears old saved bed mesh (if any)
 ###  BED MESH ###
   SET_DISPLAY_TEXT MSG="Bed mesh"                             # Displays info
   STATUS_MESHING                                              # Sets SB-leds to bed mesh-mode
@@ -100,24 +111,23 @@ gcode:
   Smart_Park                                                  # Parks nozzle closer to print area
 
 ### HEAT NOZZLE FOR PRINTING ###  
-  {% set target_extruder = params.TOOL_TEMP|int %}             # Heats up the nozzle up to target via data from slicer
+  {% set target_extruder = params.TOOL_TEMP|int %}            # Heats up the nozzle up to target via data from slicer
   SET_DISPLAY_TEXT MSG="Hotend: {target_extruder}c"           # Displays info
   STATUS_HEATING                                              # Sets SB-leds to heating-mode
-  #G1 X{x_wait} Y{y_wait} Z15 F9000                            # Goes to center of the bed  
-  #MANAGE_TOOL_TEMPERATURES
-  M109 S{ params.TOOL_TEMP }                                    # Heats the nozzle to printing temp
+  #G1 X{x_wait} Y{y_wait} Z15 F9000                           # Goes to center of the bed  
+  M109 S{ params.TOOL_TEMP }                                  # Heats the nozzle to printing temp
   
 ### CLEAN NOZZLE AND PURGE LINE THEN BEGIN PRINT ###
-  SET_DISPLAY_TEXT MSG="Printing"                  # Displays info
-  STATUS_PRINTING                                  # Sets SB-leds to printing-mode
+  SET_DISPLAY_TEXT MSG="Printing"                             # Displays info
+  STATUS_PRINTING                                             # Sets SB-leds to printing-mode
   #CLEAN_NOZZLE
   
-  #G1 X{x_wait - 50} Y10 F10000                      # Moves to starting point 
-  #G1 Z0.6                                          # Raises Z to 0.6
-  G91                                             # Incremental positioning for Satndard purge line
-  #G1 X100 E20 F1500                                # Standard Purge line
-  #VORON_PURGE                                      #KAMP Macro
-  Line_Purge                                      #KAMP Macro
-  M107                                             # Turns off partcooling fan
-  G90                                              # Absolute position
+  #G1 X{x_wait - 50} Y10 F10000                               # Moves to starting point 
+  #G1 Z0.6                                                    # Raises Z to 0.6
+  G91                                                         # Incremental positioning for Satndard purge line
+  #G1 X100 E20 F1500                                          # Standard Purge line
+  #VORON_PURGE                                                # KAMP Macro
+  Line_Purge                                                  # KAMP Macro
+  M107                                                        # Turns off partcooling fan
+  G90                                                         # Absolute position
 ```
